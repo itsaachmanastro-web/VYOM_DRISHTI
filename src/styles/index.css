@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-canvas: #F4F7FA;
+    --bg-surface: #FFFFFF;
+    --border-color: #E2E8F0;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+  }
+
+  .dark {
+    --bg-canvas: #070B19;
+    --bg-surface: #0D1527;
+    --border-color: #1E293B;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+  }
+
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-family: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Clean scientific scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 9999px;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: #1E293B;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+  }
+}
+
+/* Scientific Product UI Utilities */
+.scientific-card {
+  @apply bg-white dark:bg-[#0D1527] border border-slate-200/90 dark:border-slate-800/90 rounded-xl shadow-sm transition-all duration-150;
+}
+
+.scientific-card-hover {
+  @apply hover:border-slate-300 dark:hover:border-slate-700 hover:shadow;
+}
+
+.scientific-input {
+  @apply bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition;
+}
+
+.scientific-badge-blue {
+  @apply bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/60;
+}
+
+.scientific-badge-green {
+  @apply bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60;
+}
+
+.scientific-badge-amber {
+  @apply bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60;
+}
+
+.scientific-badge-red {
+  @apply bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800/60;
+}
+
+.scientific-badge-purple {
+  @apply bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/60;
+}
