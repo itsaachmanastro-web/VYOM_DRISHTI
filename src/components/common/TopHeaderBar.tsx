@@ -8,7 +8,8 @@ import {
   Clock, 
   CheckCircle2, 
   Cpu,
-  ChevronDown
+  ChevronDown,
+  Sparkles
 } from 'lucide-react';
 import { NotificationCenterPanel } from '../notifications/NotificationCenterPanel';
 import { UserProfileMenu } from './UserProfileMenu';
@@ -18,6 +19,7 @@ export const TopHeaderBar: React.FC = () => {
     activeProtocol, 
     protocols, 
     setActiveProtocol, 
+    startDemoMode,
     unreadNotificationCount,
     telemetry,
     tickTelemetry,
@@ -151,8 +153,18 @@ export const TopHeaderBar: React.FC = () => {
         </div>
       </div>
 
-      {/* Center: 3 Scientific Status Indicators Matching Reference */}
+      {/* Center: 3 Scientific Status Indicators & 1-Click Demo Launcher */}
       <div className="hidden lg:flex items-center gap-3">
+        {/* Quick Demo Mode Launcher */}
+        <button
+          onClick={startDemoMode}
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white shadow-xs text-[11px] font-bold transition transform hover:scale-105 active:scale-95"
+          title="Launch 4-Step Live Webcam Demo Experiment (MoveNet Real-Time Tracking)"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>4-Step Live Demo</span>
+        </button>
+
         {/* Status 1: Experiment Running */}
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 text-[11px] font-medium">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />

@@ -64,62 +64,59 @@ export const SpaceBackground: React.FC<SpaceBackgroundProps> = ({
         <LiveOrbitalSpaceScene />
       )}
 
-      {/* 3. LOCALIZED ATMOSPHERIC READABILITY GRADIENTS */}
-      {/* Left side: Soft contrast gradient for text clarity */}
-      <div className="absolute inset-y-0 left-0 w-full lg:w-[58%] bg-gradient-to-r from-[#01040D]/80 via-[#01040D]/35 to-transparent pointer-events-none z-10" />
+      {/* 3. SCIENTIFIC CONTRAST GRADIENTS (Preserves Text Legibility Without Obstructing View) */}
+      {/* Left Scrim */}
+      <div className="absolute inset-y-0 left-0 w-full lg:w-[48%] bg-gradient-to-r from-[#01040D]/70 via-[#01040D]/20 to-transparent pointer-events-none z-10" />
 
-      {/* Right side: Soft tint behind the Live Perception HUD */}
-      <div className="absolute inset-y-0 right-0 w-full lg:w-[48%] bg-gradient-to-l from-[#01040D]/70 via-[#01040D]/20 to-transparent pointer-events-none z-10" />
+      {/* Top Header Scrim */}
+      <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-[#01040D]/75 via-[#01040D]/20 to-transparent pointer-events-none z-10" />
 
-      {/* Top Header Vignette */}
-      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[#01040D]/75 via-[#01040D]/25 to-transparent pointer-events-none z-10" />
+      {/* Bottom Telemetry Scrim */}
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#01040D]/80 via-[#01040D]/20 to-transparent pointer-events-none z-10" />
 
-      {/* Bottom Telemetry Vignette */}
-      <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-[#01040D]/85 via-[#01040D]/30 to-transparent pointer-events-none z-10" />
-
-      {/* 4. SPACECRAFT CUPOLA OBSERVATION WINDOW FRAME OVERLAY */}
+      {/* 4. SPACECRAFT CUPOLA OBSERVATION WINDOW FRAME OVERLAY (Matching Image 1) */}
       <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between">
         
         {/* Left Arch Metallic Frame */}
         <svg 
-          className="absolute left-0 top-0 bottom-0 h-full w-20 sm:w-32 text-slate-900 pointer-events-none opacity-85" 
+          className="absolute left-0 top-0 bottom-0 h-full w-16 sm:w-24 text-slate-900 pointer-events-none opacity-85" 
           viewBox="0 0 120 1000" 
           preserveAspectRatio="none"
         >
           {/* Outer Frame Body */}
           <path 
-            d="M0,0 L50,0 Q38,500 75,1000 L0,1000 Z" 
+            d="M0,0 L45,0 Q32,500 65,1000 L0,1000 Z" 
             fill="#050914" 
           />
           {/* Metallic Specular Bevel Line */}
           <path 
-            d="M50,0 Q38,500 75,1000" 
+            d="M45,0 Q32,500 65,1000" 
             fill="none" 
-            stroke="rgba(71, 85, 105, 0.7)" 
+            stroke="rgba(71, 85, 105, 0.65)" 
             strokeWidth="1.8" 
           />
-          {/* Bolts */}
-          <circle cx="20" cy="150" r="3" fill="#1E293B" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" />
-          <circle cx="18" cy="350" r="3" fill="#1E293B" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" />
-          <circle cx="18" cy="550" r="3" fill="#1E293B" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" />
-          <circle cx="24" cy="750" r="3" fill="#1E293B" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" />
-          <circle cx="30" cy="900" r="3" fill="#1E293B" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" />
+          {/* Structural Bolts */}
+          <circle cx="18" cy="150" r="3" fill="#1E293B" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" />
+          <circle cx="16" cy="350" r="3" fill="#1E293B" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" />
+          <circle cx="16" cy="550" r="3" fill="#1E293B" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" />
+          <circle cx="20" cy="750" r="3" fill="#1E293B" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" />
+          <circle cx="25" cy="900" r="3" fill="#1E293B" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" />
         </svg>
 
-        {/* Right Structural Upper Frame */}
+        {/* Right Structural Frame */}
         <svg 
-          className="absolute right-0 top-0 bottom-0 h-full w-18 sm:w-26 text-slate-900 pointer-events-none opacity-85" 
+          className="absolute right-0 top-0 bottom-0 h-full w-16 sm:w-22 text-slate-900 pointer-events-none opacity-85" 
           viewBox="0 0 100 1000" 
           preserveAspectRatio="none"
         >
           <path 
-            d="M100,0 L52,0 Q62,400 32,1000 L100,1000 Z" 
+            d="M100,0 L56,0 Q66,400 38,1000 L100,1000 Z" 
             fill="#050914" 
           />
           <path 
-            d="M52,0 Q62,400 32,1000" 
+            d="M56,0 Q66,400 38,1000" 
             fill="none" 
-            stroke="rgba(71, 85, 105, 0.7)" 
+            stroke="rgba(71, 85, 105, 0.65)" 
             strokeWidth="1.8" 
           />
           {/* Bolts */}
@@ -130,13 +127,13 @@ export const SpaceBackground: React.FC<SpaceBackgroundProps> = ({
         </svg>
 
         {/* Reticle HUD Markings on Frame */}
-        <div className="absolute left-2.5 top-1/3 text-[8.5px] font-mono text-cyan-400/40 space-y-1 hidden sm:block">
+        <div className="absolute left-2 top-1/3 text-[8.5px] font-mono text-cyan-400/40 space-y-1 hidden sm:block">
           <div>G-BAS ORBIT</div>
           <div>FOV: 140°</div>
           <div>WIN-CP-04</div>
         </div>
 
-        <div className="absolute right-2.5 top-1/4 text-[8.5px] font-mono text-cyan-400/40 space-y-1 hidden sm:block text-right">
+        <div className="absolute right-2 top-1/4 text-[8.5px] font-mono text-cyan-400/40 space-y-1 hidden sm:block text-right">
           <div>OPTICS: OK</div>
           <div>EARTH LIMB</div>
         </div>

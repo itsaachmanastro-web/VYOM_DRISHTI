@@ -6,14 +6,14 @@ import {
   ArrowRight, 
   Activity, 
   Maximize2, 
-  Clock,
-  Heart,
-  Zap,
-  Target
+  Clock, 
+  Heart, 
+  Zap, 
+  Target 
 } from 'lucide-react';
 
 export const LandingHero: React.FC = () => {
-  const { setCurrentView, session } = useMissionStore();
+  const { setCurrentView, session, startDemoMode } = useMissionStore();
 
   const [liveTime, setLiveTime] = useState('2025-09-27 20:48:33 IST');
   const [animTime, setAnimTime] = useState(0);
@@ -21,7 +21,6 @@ export const LandingHero: React.FC = () => {
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      // Format as YYYY-MM-DD HH:mm:ss IST
       const year = now.getFullYear();
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const day = String(now.getDate()).padStart(2, '0');
@@ -51,13 +50,13 @@ export const LandingHero: React.FC = () => {
   const scanY = (animTime * 32) % 135;
 
   return (
-    <section className="relative pt-16 pb-8 lg:pt-24 lg:pb-10 px-6 sm:px-12 max-w-[1720px] mx-auto min-h-[90vh] flex flex-col justify-between select-none z-10">
+    <section className="relative pt-16 pb-3 px-6 sm:px-12 max-w-[1720px] mx-auto min-h-screen lg:h-screen w-full flex flex-col justify-between select-none z-10">
       
       {/* 2-Column Hero Grid: Left 55% / Right 45% strictly matching Image 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center my-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center my-auto w-full">
         
         {/* Left Column (approx 55%) */}
-        <div className="lg:col-span-7 xl:col-span-7 space-y-6">
+        <div className="lg:col-span-7 xl:col-span-7 space-y-5">
           
           {/* Eyebrow Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#040A18]/85 border border-cyan-500/40 text-cyan-300 text-[11px] font-mono backdrop-blur-md shadow-[0_0_12px_rgba(0,229,255,0.15)]">
@@ -71,12 +70,12 @@ export const LandingHero: React.FC = () => {
           </div>
 
           {/* Main Heading */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <h1 className="text-5xl sm:text-6xl xl:text-7xl font-extrabold tracking-tight font-display text-white leading-none">
               VYOM DRISHTI <span className="text-[#00E5FF] drop-shadow-[0_0_24px_rgba(0,229,255,0.45)]">AI</span>
             </h1>
             
-            <h2 className="text-xl sm:text-2xl xl:text-3xl font-bold text-slate-100 font-sans tracking-tight leading-snug">
+            <h2 className="text-lg sm:text-xl xl:text-2xl font-bold text-slate-100 font-sans tracking-tight leading-snug">
               AI-Powered Human Activity Recognition for On-board BAS Experiments
             </h2>
           </div>
@@ -125,7 +124,7 @@ export const LandingHero: React.FC = () => {
           </div>
 
           {/* Action CTAs */}
-          <div className="flex flex-wrap items-center gap-4 pt-2">
+          <div className="flex flex-wrap items-center gap-4 pt-1">
             <button
               onClick={() => {
                 if (session) {
@@ -134,7 +133,7 @@ export const LandingHero: React.FC = () => {
                   setCurrentView('login');
                 }
               }}
-              className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-500 to-cyan-400 hover:from-blue-500 hover:to-cyan-300 text-slate-950 font-extrabold font-mono text-xs tracking-wider flex items-center gap-2.5 shadow-[0_0_30px_rgba(0,229,255,0.45)] transition transform hover:-translate-y-0.5"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-950 font-extrabold font-mono text-xs tracking-wider flex items-center gap-2.5 shadow-[0_0_30px_rgba(0,229,255,0.45)] transition transform hover:-translate-y-0.5"
             >
               <Rocket className="w-4 h-4 fill-current" />
               <span>{session ? 'ENTER MISSION CONSOLE' : 'LAUNCH MISSION CONSOLE'}</span>
@@ -144,12 +143,12 @@ export const LandingHero: React.FC = () => {
             <button
               onClick={() => {
                 if (session) {
-                  setCurrentView('sequence');
+                  startDemoMode();
                 } else {
                   setCurrentView('login');
                 }
               }}
-              className="px-5 py-3.5 rounded-xl bg-[#040A18]/85 hover:bg-slate-800/90 text-slate-200 border border-slate-700 hover:border-cyan-500/60 font-mono text-xs font-semibold flex items-center gap-2 backdrop-blur-xl transition"
+              className="px-5 py-3 rounded-xl bg-[#040A18]/85 hover:bg-slate-800/90 text-slate-200 border border-slate-700 hover:border-cyan-500/60 font-mono text-xs font-semibold flex items-center gap-2 backdrop-blur-xl transition"
             >
               <Play className="w-3.5 h-3.5 text-cyan-400 fill-current" />
               <span>Test Protocol Simulator</span>
@@ -184,7 +183,7 @@ export const LandingHero: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5 my-3.5">
               
               {/* Center Kinematic Skeleton Viewport */}
-              <div className="sm:col-span-8 rounded-xl bg-[#02050E] border border-slate-800 p-3.5 relative min-h-[220px] flex flex-col justify-between overflow-hidden shadow-inner">
+              <div className="sm:col-span-8 rounded-xl bg-[#02050E] border border-slate-800 p-3.5 relative min-h-[210px] flex flex-col justify-between overflow-hidden shadow-inner">
                 
                 {/* Background Tech Grid */}
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,229,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,229,255,0.04)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
@@ -202,10 +201,10 @@ export const LandingHero: React.FC = () => {
                 </div>
 
                 {/* Animated Kinematic Skeleton (17 Keypoints) */}
-                <div className="relative w-full h-34 flex items-center justify-center z-10 py-1">
-                  <svg viewBox="0 0 200 150" className="w-48 h-34">
+                <div className="relative w-full h-32 flex items-center justify-center z-10 py-1">
+                  <svg viewBox="0 0 200 150" className="w-44 h-32">
                     {/* Head */}
-                    <circle cx={100 + swayX} cy={24 + swayY} r="8" fill="none" stroke="#00E5FF" strokeWidth="2" />
+                    <circle cx={100 + swayX} cy={24 + swayY} r="7.5" fill="none" stroke="#00E5FF" strokeWidth="2" />
                     <circle cx={100 + swayX} cy={24 + swayY} r="2.5" fill="#00E5FF" />
 
                     {/* Spine */}
@@ -312,7 +311,7 @@ export const LandingHero: React.FC = () => {
       </div>
 
       {/* Bottom Avionics Telemetry Coordinates Strip */}
-      <div className="pt-4 border-t border-slate-800/60 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-slate-400">
+      <div className="pt-3 border-t border-slate-800/60 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-slate-400">
         <div className="flex items-center gap-3">
           <span>LAT: <strong className="text-white">0.00°</strong></span>
           <span>•</span>
@@ -345,3 +344,5 @@ export const LandingHero: React.FC = () => {
     </section>
   );
 };
+
+export default LandingHero;

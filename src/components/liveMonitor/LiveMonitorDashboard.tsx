@@ -1,5 +1,6 @@
 import React from 'react';
 import { MetricCardsRow } from './MetricCardsRow';
+import { DemoModeHeaderBanner } from './DemoModeHeaderBanner';
 import { CameraFeedCanvas } from './CameraFeedCanvas';
 import { CurrentStepCard } from './CurrentStepCard';
 import { ExperimentSequenceCard } from './ExperimentSequenceCard';
@@ -15,7 +16,10 @@ export const LiveMonitorDashboard: React.FC = () => {
       {/* 1. Top Metrics KPI Row */}
       <MetricCardsRow />
 
-      {/* 2. Recording & RTSP Streaming Panel */}
+      {/* 2. Interactive Real-Time Demo Mode Switcher Banner */}
+      <DemoModeHeaderBanner />
+
+      {/* 3. Recording & RTSP Streaming Panel */}
       <RecordingStreamPanel />
 
       {/* 3. Primary Workspace Grid: Live Video & Step Validation */}

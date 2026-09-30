@@ -148,6 +148,7 @@ interface MissionState {
   isWebcamActive: boolean;
   setActiveCamera: (camId: string) => void;
   setIsWebcamActive: (active: boolean) => void;
+  toggleWebcam: (forceState?: boolean) => void;
 
   // Logs & Alerts
   logs: MissionLogEvent[];
@@ -253,6 +254,8 @@ interface MissionState {
 
   // Interactive Action Triggers
   advanceToNextStep: () => void;
+  retryCurrentStep: () => void;
+  restartEntireProcedure: () => void;
   simulateAction: (actionType: 'CORRECT' | 'SKIPPED' | 'OUT_OF_SEQUENCE' | 'REPEATED', customAction?: string) => void;
   resetExperiment: () => void;
   toggleSimulation: () => void;
@@ -314,16 +317,16 @@ const generateInitialRecords = (protocol: ExperimentProtocol): StepExecutionReco
 let replayInterval: any = null;
 
 export const useMissionStore = create<MissionState>((set, get) => {
-  const initialProtocol = EXPERIMENT_PROTOCOLS[0]; // BAS-SCI-01 Sample Cartridge Installation
+  const initialProtocol = EXPERIMENT_PROTOCOLS[0]; // BAS-DEMO-01 Real-Time Webcam Hand Verification Demo
   const initialRecords = generateInitialRecords(initialProtocol);
   const initialValidation: ValidationResult = {
-    stepNumber: 2,
-    validationState: 'ACTIVE',
-    recognizedAction: 'Collect Sample',
-    expectedAction: initialProtocol.steps[1]?.expectedAction || 'Collect Sample',
-    confidence: 0.962,
-    recommendation: 'Step 2: Retrieve biological sample vial from cold storage container.',
-    voiceAlertText: 'Step 01 validated. Proceed to Step 02: Collect Sample Vial.',
+    stepNumber: 1,
+    validationState: 'IDLE',
+    recognizedAction: 'Standing by for step initiation',
+    expectedAction: initialProtocol.steps[0]?.expectedAction || 'Hands at Rest',
+    confidence: 0.98,
+    recommendation: 'Step 1: Rest in position. Face the camera and keep both hands down.',
+    voiceAlertText: 'Ready for Step 1: Rest in position. Please face the camera and keep both hands down.',
     severity: 'INFO'
   };
 
@@ -440,7 +443,7 @@ export const useMissionStore = create<MissionState>((set, get) => {
 
     protocols: EXPERIMENT_PROTOCOLS,
     activeProtocol: initialProtocol,
-    currentStepIndex: 1, // Currently on step 2 (index 1)
+    currentStepIndex: 0, // Initialized at Step 1 (index 0)
     setActiveProtocol: (protocolId) => {
       const normalized = (protocolId || '').toLowerCase().trim();
       const proto = EXPERIMENT_PROTOCOLS.find(p => 
@@ -491,7 +494,7 @@ export const useMissionStore = create<MissionState>((set, get) => {
     executionRecords: initialRecords,
 
     // Video Source Management
-    videoSourceType: 'SIMULATION',
+    videoSourceType: 'WEBCAM',
     videoSourceUrl: null,
     uploadedVideoFile: null,
     setVideoSource: (type, url, file) => {
@@ -762,10 +765,9 @@ export const useMissionStore = create<MissionState>((set, get) => {
     isSimulating: true,
     simulationSpeed: 1.0,
     boundingBoxes: [
-      { id: 'b1', label: 'Astronaut (Microgravity)', category: 'HUMAN', confidence: 0.98, x: 0.25, y: 0.15, width: 0.40, height: 0.72, color: '#00E5FF' },
-      { id: 'b2', label: 'Biological-Sample-Vial-A', category: 'VIAL', confidence: 0.96, x: 0.52, y: 0.46, width: 0.12, height: 0.18, color: '#10B981' },
-      { id: 'b3', label: 'EXPRESS-RACK-04', category: 'EQUIPMENT', confidence: 0.99, x: 0.15, y: 0.10, width: 0.70, height: 0.85, color: '#38BDF8' },
-      { id: 'b4', label: 'Microfluidic-Cartridge-Dock', category: 'CONTAINER', confidence: 0.95, x: 0.48, y: 0.52, width: 0.20, height: 0.25, color: '#F59E0B' }
+      { id: 'b1', label: 'Operator (Pose Tracked)', category: 'HUMAN', confidence: 0.98, x: 0.25, y: 0.15, width: 0.40, height: 0.72, color: '#00E5FF' },
+      { id: 'b2', label: 'Hand Tracking Region', category: 'HUMAN', confidence: 0.96, x: 0.52, y: 0.46, width: 0.14, height: 0.18, color: '#10B981' },
+      { id: 'b3', label: 'OPERATOR-WORKSPACE', category: 'EQUIPMENT', confidence: 0.99, x: 0.15, y: 0.10, width: 0.70, height: 0.85, color: '#38BDF8' }
     ],
     poseKeypoints: [
       { name: 'nose', x: 0.45, y: 0.26, score: 0.99 },
@@ -786,22 +788,37 @@ export const useMissionStore = create<MissionState>((set, get) => {
     ],
     hoiInteraction: {
       active: true,
-      hand: 'RIGHT',
-      targetObject: 'Biological-Sample-Vial-A',
-      interactionType: 'GRIP',
-      gScore: 0.962,
-      vector: { startX: 0.52, startY: 0.48, endX: 0.52, endY: 0.46 }
+      hand: 'BOTH',
+      targetObject: 'Operator Posture Target',
+      interactionType: 'RESTING',
+      gScore: 0.98,
+      vector: { startX: 0.50, startY: 0.50, endX: 0.50, endY: 0.50 }
     },
-    currentActionName: 'COLLECT_SAMPLE',
-    actionConfidence: 0.962,
+    currentActionName: 'HANDS_AT_REST',
+    actionConfidence: 0.98,
     validationResult: initialValidation,
 
     telemetry: INITIAL_TELEMETRY,
     modelTelemetry: INITIAL_MODEL_TELEMETRY,
     activeCamera: 'CAM-01-PAYLOAD-FRONT',
-    isWebcamActive: false,
+    isWebcamActive: true,
     setActiveCamera: (camId) => set({ activeCamera: camId }),
     setIsWebcamActive: (active) => set({ isWebcamActive: active }),
+    toggleWebcam: (forceState) => {
+      const current = get().isWebcamActive;
+      const next = forceState !== undefined ? forceState : !current;
+      set({
+        isWebcamActive: next,
+        videoSourceType: next ? 'WEBCAM' : 'SIMULATION'
+      });
+      get().addLogEvent({
+        event: `Webcam hardware ${next ? 'ACTIVATED (ON)' : 'DEACTIVATED (OFF)'}`,
+        category: 'CAMERA',
+        severity: 'INFO',
+        confidence: 1.0,
+        source: 'WEBCAM_MANAGER'
+      });
+    },
 
     // Human-Friendly Step State Machine & Telemetry
     isRealTrackingActive: false,
@@ -814,18 +831,7 @@ export const useMissionStore = create<MissionState>((set, get) => {
     lastSpokenVoiceCue: 'Mission AI online. Ready for experiment protocol.',
     angularVelocity: 0,
     wristTrajectories: { right: [], left: [] },
-    stepHistory: [
-      {
-        stepNumber: 1,
-        stepCode: 'SCI-STP-01',
-        title: 'Open Payload Rack',
-        expectedAction: 'Disengage mechanical latch and open payload rack door.',
-        recognizedAction: 'Payload Rack Unlatched and Locked Open',
-        completedAt: '20:31:12',
-        confidence: 0.985,
-        durationSec: 15
-      }
-    ],
+    stepHistory: [],
     resetSequenceHistory: () => set({ stepHistory: [] }),
 
     // Connection & Offline-First State
@@ -884,37 +890,44 @@ export const useMissionStore = create<MissionState>((set, get) => {
     isDemoMode: true,
     demoStatus: 'READY',
     startDemoMode: () => {
-      const demoProto = EXPERIMENT_PROTOCOLS.find(p => p.id === 'exp-bas-demo-01') || EXPERIMENT_PROTOCOLS[0];
+      const demoProto = EXPERIMENT_PROTOCOLS.find(p => p.id === 'exp-bas-demo-01' || p.code === 'BAS-DEMO-01') || EXPERIMENT_PROTOCOLS[0];
+      const newRecords = generateInitialRecords(demoProto);
       temporalValidator.resetForStep(1);
       set({
         isDemoMode: true,
         demoStatus: 'RUNNING',
         activeProtocol: demoProto,
         currentStepIndex: 0,
+        executionRecords: newRecords,
         isWebcamActive: true,
+        videoSourceType: 'WEBCAM',
         stepMachineState: 'WAITING',
         verificationProgress: 0,
         verificationCountdownSec: 1.5,
-        verificationStatusMessage: 'Demo Started: Place both hands down at rest.',
-        stepHistory: []
+        verificationStatusMessage: 'Please face the camera and keep both hands down.',
+        stepHistory: [],
+        validationResult: {
+          stepNumber: 1,
+          validationState: 'IDLE',
+          recognizedAction: 'Standing by for Step 1',
+          expectedAction: 'Please face the camera and keep both hands down.',
+          confidence: 0.95,
+          recommendation: 'Step 1: Hands at Rest. Please face the camera and keep both hands down.',
+          voiceAlertText: 'Rest in position. Please face the camera and keep both hands down.',
+          severity: 'INFO'
+        }
       });
-      audioService.speakGuidance('Live webcam demo started. Step 1: Place both hands down and stay still for a moment.', true);
+      audioService.speakGuidance('Rest in position. Please face the camera and keep both hands down.', true);
+      get().addLogEvent({
+        event: 'Real-Time Webcam Hand Verification Demo (BAS-DEMO-01) initialized.',
+        category: 'EXPERIMENT_ENGINE',
+        severity: 'INFO',
+        confidence: 1.0,
+        source: 'EXPERIMENT_ENGINE'
+      });
     },
     restartDemoMode: () => {
-      const demoProto = EXPERIMENT_PROTOCOLS.find(p => p.id === 'exp-bas-demo-01') || EXPERIMENT_PROTOCOLS[0];
-      temporalValidator.resetForStep(1);
-      set({
-        isDemoMode: true,
-        demoStatus: 'RUNNING',
-        activeProtocol: demoProto,
-        currentStepIndex: 0,
-        stepMachineState: 'WAITING',
-        verificationProgress: 0,
-        verificationCountdownSec: 1.5,
-        verificationStatusMessage: 'Demo Restarted: Step 1 — Hands at Rest',
-        stepHistory: []
-      });
-      audioService.speakGuidance('Demo restarted. Step 1: Place both hands down and stay still.', true);
+      get().restartEntireProcedure();
     },
     pauseDemoMode: () => {
       set({ demoStatus: 'PAUSED' });
@@ -942,6 +955,100 @@ export const useMissionStore = create<MissionState>((set, get) => {
       } else {
         get().exitDemoMode();
       }
+    },
+
+    retryCurrentStep: () => {
+      const state = get();
+      const proto = state.activeProtocol;
+      const currentIdx = state.currentStepIndex;
+      const currentStep = proto.steps[currentIdx];
+      if (!currentStep) return;
+
+      temporalValidator.resetForStep(currentStep.stepNumber);
+
+      const updatedRecords = [...state.executionRecords];
+      if (updatedRecords[currentIdx]) {
+        updatedRecords[currentIdx] = {
+          ...updatedRecords[currentIdx],
+          status: 'IN_PROGRESS',
+          validationState: 'ACTIVE',
+          confidence: 0.95,
+          deviationReason: undefined,
+          notes: `Step ${currentStep.stepNumber} reset by operator for retry.`
+        };
+      }
+
+      const retryVoice = currentStep.voicePrompt || `Please perform ${currentStep.expectedAction}`;
+
+      set({
+        executionRecords: updatedRecords,
+        stepMachineState: 'WAITING',
+        verificationProgress: 0,
+        verificationCountdownSec: 1.5,
+        verificationStatusMessage: currentStep.expectedAction,
+        validationResult: {
+          stepNumber: currentStep.stepNumber,
+          validationState: 'ACTIVE',
+          recognizedAction: 'Standing by for retry',
+          expectedAction: currentStep.expectedAction,
+          confidence: 0.95,
+          recommendation: `Step ${currentStep.stepNumber}: ${currentStep.title}. ${currentStep.expectedAction}`,
+          voiceAlertText: retryVoice,
+          severity: 'INFO'
+        }
+      });
+
+      audioService.speakGuidance(retryVoice, true);
+
+      state.addLogEvent({
+        event: `Step ${currentStep.stepNumber} (${currentStep.title}) reset for retry.`,
+        category: 'EXPERIMENT_ENGINE',
+        severity: 'INFO',
+        confidence: 1.0,
+        source: 'OPERATOR_CONSOLE'
+      });
+    },
+
+    restartEntireProcedure: () => {
+      const state = get();
+      const proto = state.activeProtocol;
+      const newRecords = generateInitialRecords(proto);
+      temporalValidator.resetForStep(1);
+
+      const isDemo = proto.code === 'BAS-DEMO-01';
+      const restartVoice = isDemo 
+        ? 'Rest in position. Please face the camera and keep both hands down.' 
+        : `Experiment restarted. Ready for Step 1: ${proto.steps[0]?.expectedAction || 'Initiate procedure'}.`;
+
+      set({
+        currentStepIndex: 0,
+        executionRecords: newRecords,
+        stepHistory: [],
+        stepMachineState: 'WAITING',
+        verificationProgress: 0,
+        verificationCountdownSec: 1.5,
+        verificationStatusMessage: proto.steps[0]?.expectedAction || 'Initiate procedure',
+        validationResult: {
+          stepNumber: 1,
+          validationState: 'IDLE',
+          recognizedAction: 'Ready for initiation',
+          expectedAction: proto.steps[0]?.expectedAction || 'Initiate procedure',
+          confidence: 0.95,
+          recommendation: `Step 1: ${proto.steps[0]?.title || 'Initiate procedure'}`,
+          voiceAlertText: restartVoice,
+          severity: 'INFO'
+        }
+      });
+
+      audioService.speakGuidance(restartVoice, true);
+
+      state.addLogEvent({
+        event: `Entire experiment procedure (${proto.code}) restarted from Step 1.`,
+        category: 'EXPERIMENT_ENGINE',
+        severity: 'INFO',
+        confidence: 1.0,
+        source: 'OPERATOR_CONSOLE'
+      });
     },
 
     realJointAngles: {
@@ -1275,20 +1382,25 @@ export const useMissionStore = create<MissionState>((set, get) => {
           confidence: 0.95
         };
 
+        const isDemo = proto.code === 'BAS-DEMO-01';
+        const stepVoiceText = isDemo 
+          ? (nextStep.voicePrompt || nextStep.expectedAction)
+          : `Step ${currentStep.stepNumber} complete. Starting Step ${nextStep.stepNumber}: ${nextStep.title}.`;
+
         const result: ValidationResult = {
           stepNumber: nextStep.stepNumber,
           validationState: 'ACTIVE',
           recognizedAction: nextStep.expectedAction,
           expectedAction: nextStep.expectedAction,
           confidence: 0.96,
-          recommendation: `Step ${nextStep.stepNumber}: ${nextStep.title}. ${nextStep.scientificRationale}`,
-          voiceAlertText: `Step ${currentStep.stepNumber} complete. Starting Step ${nextStep.stepNumber}: ${nextStep.title}.`,
+          recommendation: `Step ${nextStep.stepNumber}: ${nextStep.title}. ${nextStep.expectedAction}`,
+          voiceAlertText: stepVoiceText,
           severity: 'INFO'
         };
 
         state.triggerAlert({
           title: `Step ${currentStep.stepNumber} Validated`,
-          message: `Proceed to Step ${nextStep.stepNumber}: ${nextStep.title}`,
+          message: `${nextStep.title}: ${nextStep.expectedAction}`,
           severity: 'INFO',
           spokenText: result.voiceAlertText,
           stepNumber: nextStep.stepNumber,
@@ -1297,7 +1409,7 @@ export const useMissionStore = create<MissionState>((set, get) => {
 
         notificationService.notify({
           title: `Step ${currentStep.stepNumber} Verified`,
-          message: `${currentStep.title} (${currentStep.expectedAction}) completed successfully. Proceed to Step ${nextStep.stepNumber}.`,
+          message: `${currentStep.title} completed. Proceed to Step ${nextStep.stepNumber}.`,
           type: 'SUCCESS',
           actionLink: 'sequence',
           sourceModule: 'SEQUENCE_VALIDATOR'
@@ -1309,14 +1421,15 @@ export const useMissionStore = create<MissionState>((set, get) => {
           validationResult: result,
           stepHistory: updatedHistory,
           stepMachineState: 'WAITING',
-          verificationCountdownSec: 1.8,
+          verificationCountdownSec: 1.5,
           verificationProgress: 0,
-          verificationStatusMessage: `Standing by for Step ${nextStep.stepNumber}: ${nextStep.expectedAction}`,
+          verificationStatusMessage: nextStep.expectedAction,
           currentActionName: nextStep.expectedAction.toUpperCase().replace(/\s+/g, '_'),
           actionConfidence: 0.965
         });
       } else {
         const currentStep = proto.steps[currentIdx];
+        const isDemo = proto.code === 'BAS-DEMO-01';
         const now = new Date();
         const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 
@@ -1331,23 +1444,27 @@ export const useMissionStore = create<MissionState>((set, get) => {
           durationSec: 18
         };
 
+        const completionVoice = isDemo 
+          ? 'Verification complete. All actions were successfully verified.' 
+          : `Mission protocol ${proto.code} completed successfully. Data logged and sealed.`;
+
         set({
           stepHistory: [...state.stepHistory.filter(h => h.stepNumber !== currentStep.stepNumber), finalHistoryItem],
           stepMachineState: 'VERIFIED',
-          verificationStatusMessage: 'All protocol procedures completed and sealed.'
+          verificationStatusMessage: isDemo ? 'Verification Complete' : 'All protocol procedures completed and sealed.'
         });
 
         state.triggerAlert({
-          title: 'Experiment Protocol Complete',
-          message: `All ${proto.totalSteps} steps of ${proto.code} successfully executed and validated.`,
+          title: isDemo ? 'Verification Complete' : 'Experiment Protocol Complete',
+          message: isDemo ? 'All four actions were successfully verified.' : `All ${proto.totalSteps} steps of ${proto.code} successfully executed and validated.`,
           severity: 'INFO',
-          spokenText: `Mission protocol ${proto.code} completed successfully. Data logged and sealed.`,
+          spokenText: completionVoice,
           soundType: 'SUCCESS'
         });
 
         notificationService.notify({
-          title: 'Experiment Completed',
-          message: `All ${proto.totalSteps} steps of ${proto.code} (${proto.name}) successfully verified and sealed.`,
+          title: isDemo ? 'Verification Complete' : 'Experiment Completed',
+          message: isDemo ? 'All four actions were successfully verified.' : `All ${proto.totalSteps} steps of ${proto.code} successfully verified and sealed.`,
           type: 'SUCCESS',
           actionLink: 'sequence',
           sourceModule: 'SEQUENCE_VALIDATOR'

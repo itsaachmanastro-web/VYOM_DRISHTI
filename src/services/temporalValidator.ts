@@ -12,13 +12,13 @@ export interface ValidationConfig {
 }
 
 export const DEFAULT_VALIDATION_CONFIG: ValidationConfig = {
-  VERIFICATION_DELAY_MS: 1500,
-  MIN_STABLE_DURATION_MS: 1200,
-  CONFIDENCE_THRESHOLD: 0.60,
-  ACTION_STABILITY_PERCENT: 0.65,
-  FRAME_TOLERANCE: 10,
+  VERIFICATION_DELAY_MS: 1200,
+  MIN_STABLE_DURATION_MS: 900,
+  CONFIDENCE_THRESHOLD: 0.45,
+  ACTION_STABILITY_PERCENT: 0.50,
+  FRAME_TOLERANCE: 15,
   POST_VERIFICATION_COOLDOWN_MS: 1200,
-  INCORRECT_TRIGGER_MS: 3500,
+  INCORRECT_TRIGGER_MS: 4000,
   STEP_GRACE_PERIOD_MS: 5000,
 };
 
@@ -105,23 +105,17 @@ export class TemporalValidator {
       case 'RESTING_BASELINE':
         return 'Hands at rest';
       case 'RAISE_RIGHT_HAND':
-        return 'Right hand raised';
+        return 'Right hand detected';
       case 'LOWER_RIGHT_HAND':
         return 'Right hand lowered';
       case 'RAISE_BOTH_HANDS':
         return 'Both hands raised';
       case 'RAISE_LEFT_HAND':
-        return 'Left hand raised';
+        return 'Left hand detected';
       case 'HANDS_TOGETHER_CHEST':
         return 'Hands together at chest';
       case 'PREPARING_MOVEMENT':
-        return 'Preparing / Adjusting';
-      case 'CONTAINER_REACH_PICKUP':
-        return 'Reaching for sample container';
-      case 'CENTRAL_ALIGNMENT_TRANSFER':
-        return 'Transferring sample';
-      case 'PAYLOAD_DOCKING_LOWER':
-        return 'Docking in payload rack';
+        return 'Move into position...';
       default:
         return action.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
     }
@@ -272,12 +266,28 @@ export class TemporalValidator {
         if (elapsed >= this.config.VERIFICATION_DELAY_MS) {
           this.stepState = 'VERIFIED';
           this.isLockedVerified = true;
-          this.completedTimestamp = this.formatCurrentTime();
           this.cooldownUntil = now + this.config.POST_VERIFICATION_COOLDOWN_MS;
+          this.completedTimestamp = this.formatCurrentTime();
 
-          const praiseVoice = currentStep.stepNumber === protocol.totalSteps
-            ? 'Great job! Demo completed successfully.'
-            : `Good! Step ${currentStep.stepNumber} completed.`;
+          let praiseVoice = `Good! Step ${currentStep.stepNumber} completed.`;
+          let verifiedStatusMsg = `✓ Step ${currentStep.stepNumber} verified.`;
+          if (protocol.code === 'BAS-DEMO-01') {
+            if (currentStep.stepNumber === 1) {
+              praiseVoice = 'Resting posture confirmed. Step one verified. Proceed to Step 2: Raise your right hand.';
+              verifiedStatusMsg = 'Hands at rest verified.';
+            } else if (currentStep.stepNumber === 2) {
+              praiseVoice = 'Correct. Right hand raised. Now raise your left hand.';
+              verifiedStatusMsg = 'Right hand verified.';
+            } else if (currentStep.stepNumber === 3) {
+              praiseVoice = 'Correct. Left hand raised. Now lower both hands.';
+              verifiedStatusMsg = 'Left hand verified.';
+            } else if (currentStep.stepNumber === 4) {
+              praiseVoice = 'Verification complete. All actions were successfully verified.';
+              verifiedStatusMsg = 'Verification Complete';
+            }
+          } else if (currentStep.stepNumber === protocol.totalSteps) {
+            praiseVoice = 'Great job! Protocol procedure completed successfully.';
+          }
 
           return {
             stepState: 'VERIFIED',
@@ -286,9 +296,9 @@ export class TemporalValidator {
             smoothedConfidence: avgConfidence,
             countdownSec: 0,
             holdProgressPct: 100,
-            statusMessage: `✓ Correct! Step ${currentStep.stepNumber} completed.`,
+            statusMessage: verifiedStatusMsg,
             instructionPrompt: currentStep.expectedAction,
-            shouldAdvance: false, // advance after cooldown
+            shouldAdvance: false, // will advance after cooldownUntil
             isVerifiedLocked: true,
             completedTimestamp: this.completedTimestamp,
             voiceAlertText: praiseVoice
@@ -355,10 +365,10 @@ export class TemporalValidator {
         if (sustainedErrorMs >= this.config.INCORRECT_TRIGGER_MS) {
           this.stepState = 'INCORRECT';
 
-          // Voice warning spoken AT MOST ONCE per step attempt
+          // Voice warning spoken AT MOST ONCE per step attempt after grace period
           let warningVoice: string | undefined = undefined;
           if (!this.hasWarnedForCurrentAttempt) {
-            warningVoice = 'Please try the current step again.';
+            warningVoice = 'Incorrect action. Please perform the current instruction.';
             this.hasWarnedForCurrentAttempt = true;
           }
 
@@ -421,25 +431,21 @@ export class TemporalValidator {
     // Forgiving Demo Matching for BAS-DEMO-01
     if (protocol.code === 'BAS-DEMO-01') {
       const sNum = step.stepNumber;
-      // Step 1: Hands at rest
+      // Step 1: Hands at rest (Stand facing camera with both hands down)
       if (sNum === 1) {
-        return detectedAction === 'HANDS_AT_REST' || detectedAction === 'RESTING_BASELINE' || detectedAction === 'LOWER_RIGHT_HAND';
+        return detectedAction === 'HANDS_AT_REST' || detectedAction === 'RESTING_BASELINE' || detectedAction === 'LOWER_BOTH_HANDS' || detectedAction === 'PREPARING_MOVEMENT';
       }
       // Step 2: Raise right hand
       if (sNum === 2) {
-        return detectedAction === 'RAISE_RIGHT_HAND' || detectedAction === 'CONTAINER_REACH_PICKUP';
+        return detectedAction === 'RAISE_RIGHT_HAND' || detectedAction === 'RAISE_BOTH_HANDS';
       }
-      // Step 3: Lower right hand
+      // Step 3: Raise left hand
       if (sNum === 3) {
-        return detectedAction === 'LOWER_RIGHT_HAND' || detectedAction === 'HANDS_AT_REST' || detectedAction === 'RESTING_BASELINE';
+        return detectedAction === 'RAISE_LEFT_HAND' || detectedAction === 'RAISE_BOTH_HANDS';
       }
-      // Step 4: Raise both hands
+      // Step 4: Lower both hands (Return to resting position)
       if (sNum === 4) {
-        return detectedAction === 'RAISE_BOTH_HANDS';
-      }
-      // Step 5: Return to rest
-      if (sNum === 5) {
-        return detectedAction === 'HANDS_AT_REST' || detectedAction === 'RESTING_BASELINE' || detectedAction === 'LOWER_RIGHT_HAND';
+        return detectedAction === 'HANDS_AT_REST' || detectedAction === 'RESTING_BASELINE' || detectedAction === 'LOWER_BOTH_HANDS' || detectedAction === 'PREPARING_MOVEMENT';
       }
       return false;
     }

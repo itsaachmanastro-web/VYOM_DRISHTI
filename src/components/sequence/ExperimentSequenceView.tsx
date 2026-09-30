@@ -38,7 +38,9 @@ export const ExperimentSequenceView: React.FC = () => {
     setCurrentStepIndex,
     stepMachineState,
     humanReadableActionName,
-    executionRecords
+    executionRecords,
+    startDemoMode,
+    setCurrentView
   } = useMissionStore();
 
   const [activeTab, setActiveTab] = useState<'ACTIVE' | 'ALL' | 'LIBRARY' | 'CUSTOM'>('ACTIVE');
@@ -90,7 +92,11 @@ export const ExperimentSequenceView: React.FC = () => {
     if (e) {
       e.stopPropagation();
     }
-    setActiveProtocol(exp.id);
+    if (exp.code === 'BAS-DEMO-01' || exp.id === 'exp-002') {
+      startDemoMode();
+    } else {
+      setActiveProtocol(exp.id);
+    }
   };
 
   // Filtered experiments based on tab, search query, and category
@@ -543,7 +549,7 @@ export const ExperimentSequenceView: React.FC = () => {
             <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 bg-slate-900">
               <img 
                 src={activeExperiment.equipmentImage} 
-                alt="Payload Area" 
+                alt="Procedure Area" 
                 onError={(e) => {
                   // If image fails, replace with inline placeholder
                   (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=300&auto=format&fit=crop&q=80';
@@ -631,6 +637,24 @@ export const ExperimentSequenceView: React.FC = () => {
               <span className="font-bold">Protocol Sequence Complete</span>
             </div>
           )}
+
+          {/* Quick Action: Launch Live Webcam Mode if BAS-DEMO-01 or any active protocol */}
+          <div className="pt-2">
+            <button
+              onClick={() => {
+                if (activeExperiment.code === 'BAS-DEMO-01') {
+                  startDemoMode();
+                } else {
+                  setCurrentView('live-monitor');
+                }
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold text-xs tracking-wide flex items-center justify-center gap-2 shadow-sm transition transform hover:-translate-y-0.5 active:scale-[0.99]"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>{activeExperiment.code === 'BAS-DEMO-01' ? 'Launch Live 4-Step Webcam Demo' : 'Execute on Live Monitor'}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
         </div>
 

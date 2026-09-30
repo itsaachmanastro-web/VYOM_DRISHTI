@@ -35,21 +35,21 @@ export class ProtocolEngine {
       };
     }
 
-    // Explicit Rule Matching for BAS-DEMO-01 (Simple Live Webcam Demo)
+    // Explicit Rule Matching for BAS-DEMO-01 (Canonical 4-Step Live Webcam Demo)
     if (protocol.code === 'BAS-DEMO-01') {
       const sNum = currentStep.stepNumber;
 
       // STEP 1: Hands at Rest
       if (sNum === 1) {
-        if (detectedAction === 'HANDS_AT_REST' || detectedAction === 'RESTING_BASELINE' || detectedAction === 'LOWER_RIGHT_HAND') {
+        if (detectedAction === 'HANDS_AT_REST' || detectedAction === 'RESTING_BASELINE' || detectedAction === 'LOWER_BOTH_HANDS') {
           return {
             stepNumber: 1,
             validationState: 'CORRECT',
             recognizedAction: 'Hands at Rest',
             expectedAction: currentStep.expectedAction,
             confidence,
-            recommendation: 'Step 1 Verified. Proceed to Step 2: Slowly raise your right hand.',
-            voiceAlertText: 'Good! Step one completed.',
+            recommendation: 'Step 1 Verified. Proceed to Step 2: Raise your right hand.',
+            voiceAlertText: 'Correct! Hands at rest verified. Now raise your right hand.',
             severity: 'INFO'
           };
         } else if (detectedAction === 'PREPARING_MOVEMENT') {
@@ -59,7 +59,7 @@ export class ProtocolEngine {
             recognizedAction: 'Preparing posture',
             expectedAction: currentStep.expectedAction,
             confidence,
-            recommendation: 'Place both hands down and stay still for a moment.',
+            recommendation: 'Stand facing camera with both hands down.',
             voiceAlertText: '',
             severity: 'INFO'
           };
@@ -71,7 +71,7 @@ export class ProtocolEngine {
             expectedAction: currentStep.expectedAction,
             confidence,
             deviationReason: `Detected "${detectedAction}". Expected hands down at rest.`,
-            recommendation: 'Place both hands down and stay still for a moment. Take your time.',
+            recommendation: 'Stand facing camera with both hands down. Take your time.',
             voiceAlertText: 'Please try the current step again.',
             severity: 'WARNING'
           };
@@ -80,15 +80,15 @@ export class ProtocolEngine {
 
       // STEP 2: Raise Right Hand
       if (sNum === 2) {
-        if (detectedAction === 'RAISE_RIGHT_HAND' || detectedAction === 'CONTAINER_REACH_PICKUP') {
+        if (detectedAction === 'RAISE_RIGHT_HAND') {
           return {
             stepNumber: 2,
             validationState: 'CORRECT',
             recognizedAction: 'Right Hand Raised',
             expectedAction: currentStep.expectedAction,
             confidence,
-            recommendation: 'Step 2 Verified. Proceed to Step 3: Lower your right hand.',
-            voiceAlertText: 'Good! Step two completed.',
+            recommendation: 'Step 2 Verified. Proceed to Step 3: Raise your left hand.',
+            voiceAlertText: 'Correct! Right hand raised. Now raise your left hand.',
             severity: 'INFO'
           };
         } else if (detectedAction === 'PREPARING_MOVEMENT' || detectedAction === 'HANDS_AT_REST') {
@@ -98,7 +98,7 @@ export class ProtocolEngine {
             recognizedAction: 'Preparing to raise right hand',
             expectedAction: currentStep.expectedAction,
             confidence,
-            recommendation: 'Slowly raise your right hand in front of the camera.',
+            recommendation: 'Raise your right hand in front of the camera.',
             voiceAlertText: '',
             severity: 'INFO'
           };
@@ -110,34 +110,34 @@ export class ProtocolEngine {
             expectedAction: currentStep.expectedAction,
             confidence,
             deviationReason: `Detected "${detectedAction}". Expected right hand raised.`,
-            recommendation: 'Slowly raise your right hand. Take your time.',
+            recommendation: 'Raise your right hand. Take your time.',
             voiceAlertText: 'Please try the current step again.',
             severity: 'WARNING'
           };
         }
       }
 
-      // STEP 3: Lower Right Hand
+      // STEP 3: Raise Left Hand
       if (sNum === 3) {
-        if (detectedAction === 'LOWER_RIGHT_HAND' || detectedAction === 'HANDS_AT_REST' || detectedAction === 'RESTING_BASELINE') {
+        if (detectedAction === 'RAISE_LEFT_HAND') {
           return {
             stepNumber: 3,
             validationState: 'CORRECT',
-            recognizedAction: 'Right Hand Lowered to Rest',
+            recognizedAction: 'Left Hand Raised',
             expectedAction: currentStep.expectedAction,
             confidence,
-            recommendation: 'Step 3 Verified. Proceed to Step 4: Raise both hands.',
-            voiceAlertText: 'Good! Step three completed.',
+            recommendation: 'Step 3 Verified. Proceed to Step 4: Lower both hands back down.',
+            voiceAlertText: 'Correct! Left hand raised. Now lower both hands back down.',
             severity: 'INFO'
           };
-        } else if (detectedAction === 'PREPARING_MOVEMENT' || detectedAction === 'RAISE_RIGHT_HAND') {
+        } else if (detectedAction === 'PREPARING_MOVEMENT' || detectedAction === 'HANDS_AT_REST' || detectedAction === 'RAISE_RIGHT_HAND') {
           return {
             stepNumber: 3,
             validationState: 'ACTIVE',
-            recognizedAction: 'Preparing to lower hand',
+            recognizedAction: 'Preparing to raise left hand',
             expectedAction: currentStep.expectedAction,
             confidence,
-            recommendation: 'Lower your right hand down to resting position.',
+            recommendation: 'Raise your left hand in front of the camera.',
             voiceAlertText: '',
             severity: 'INFO'
           };
@@ -148,74 +148,35 @@ export class ProtocolEngine {
             recognizedAction: detectedAction,
             expectedAction: currentStep.expectedAction,
             confidence,
-            deviationReason: `Detected "${detectedAction}". Expected right hand lowered.`,
-            recommendation: 'Lower your right hand to your side.',
+            deviationReason: `Detected "${detectedAction}". Expected left hand raised.`,
+            recommendation: 'Raise your left hand. Take your time.',
             voiceAlertText: 'Please try the current step again.',
             severity: 'WARNING'
           };
         }
       }
 
-      // STEP 4: Raise Both Hands
+      // STEP 4: Lower Both Hands (Return to Rest)
       if (sNum === 4) {
-        if (detectedAction === 'RAISE_BOTH_HANDS') {
+        if (detectedAction === 'HANDS_AT_REST' || detectedAction === 'RESTING_BASELINE' || detectedAction === 'LOWER_BOTH_HANDS') {
           return {
             stepNumber: 4,
-            validationState: 'CORRECT',
-            recognizedAction: 'Both Hands Raised',
-            expectedAction: currentStep.expectedAction,
-            confidence,
-            recommendation: 'Step 4 Verified. Proceed to Step 5: Return both hands to resting position.',
-            voiceAlertText: 'Excellent! Step four completed.',
-            severity: 'INFO'
-          };
-        } else if (detectedAction === 'PREPARING_MOVEMENT' || detectedAction === 'HANDS_AT_REST' || detectedAction === 'RAISE_RIGHT_HAND' || detectedAction === 'RAISE_LEFT_HAND') {
-          return {
-            stepNumber: 4,
-            validationState: 'ACTIVE',
-            recognizedAction: 'Preparing both hands',
-            expectedAction: currentStep.expectedAction,
-            confidence,
-            recommendation: 'Raise both hands up in front of the camera.',
-            voiceAlertText: '',
-            severity: 'INFO'
-          };
-        } else {
-          return {
-            stepNumber: 4,
-            validationState: 'INCORRECT',
-            recognizedAction: detectedAction,
-            expectedAction: currentStep.expectedAction,
-            confidence,
-            deviationReason: `Detected "${detectedAction}". Expected both hands raised.`,
-            recommendation: 'Raise both hands upward. Take your time.',
-            voiceAlertText: 'Please try the current step again.',
-            severity: 'WARNING'
-          };
-        }
-      }
-
-      // STEP 5: Return to Rest
-      if (sNum === 5) {
-        if (detectedAction === 'HANDS_AT_REST' || detectedAction === 'RESTING_BASELINE' || detectedAction === 'LOWER_RIGHT_HAND') {
-          return {
-            stepNumber: 5,
             validationState: 'CORRECT',
             recognizedAction: 'Both Hands at Rest (Demo Complete)',
             expectedAction: currentStep.expectedAction,
             confidence,
             recommendation: 'Demo procedure complete. Great job!',
-            voiceAlertText: 'Great job! Demo completed successfully.',
+            voiceAlertText: 'Great job! All demo steps completed successfully. Procedure complete and verified.',
             severity: 'INFO'
           };
         } else {
           return {
-            stepNumber: 5,
+            stepNumber: 4,
             validationState: 'ACTIVE',
             recognizedAction: detectedAction,
             expectedAction: currentStep.expectedAction,
             confidence,
-            recommendation: 'Return both hands to the resting position.',
+            recommendation: 'Lower both hands back to the resting position.',
             voiceAlertText: '',
             severity: 'INFO'
           };

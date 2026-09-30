@@ -20,6 +20,7 @@ export const CameraFeedCanvas: React.FC = () => {
     poseKeypoints, 
     isWebcamActive, 
     setIsWebcamActive,
+    toggleWebcam,
     videoSourceType,
     setVideoSource,
     telemetry,
@@ -238,7 +239,9 @@ export const CameraFeedCanvas: React.FC = () => {
         ctx.fillStyle = '#FFFFFF';
         ctx.fillText('ID-1  98.2%', personX + 96, personY - 8);
 
-        // Sample Container Object Bounding Box
+        // Active Tracking Zone / Hand Region Object Bounding Box
+        const isDemoActive = activeProtocol.code === 'BAS-DEMO-01';
+        const objLabel = isDemoActive ? 'Hand Region' : 'Apparatus Zone';
         const objX = width * 0.62;
         const objY = height * 0.25;
         const objW = width * 0.25;
@@ -250,10 +253,10 @@ export const CameraFeedCanvas: React.FC = () => {
         ctx.roundRect(objX, objY, objW, objH, 8);
         ctx.stroke();
 
-        // Sample Container Label Tag
+        // Active Zone Label Tag
         ctx.fillStyle = 'rgba(8, 51, 68, 0.9)';
         ctx.beginPath();
-        ctx.roundRect(objX, objY - 22, 140, 20, 4);
+        ctx.roundRect(objX, objY - 22, 130, 20, 4);
         ctx.fill();
         ctx.strokeStyle = '#00E5FF';
         ctx.lineWidth = 1;
@@ -261,10 +264,10 @@ export const CameraFeedCanvas: React.FC = () => {
 
         ctx.font = 'bold 10.5px Inter, sans-serif';
         ctx.fillStyle = '#38BDF8';
-        ctx.fillText('Sample Container', objX + 8, objY - 8);
+        ctx.fillText(objLabel, objX + 8, objY - 8);
         ctx.font = 'normal 10.5px Inter, sans-serif';
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText('96.4%', objX + 104, objY - 8);
+        ctx.fillText('96.4%', objX + 90, objY - 8);
       }
 
       // 3. Draw Kinematic Pose Skeleton (17 Keypoints connected)
@@ -347,7 +350,7 @@ export const CameraFeedCanvas: React.FC = () => {
   return (
     <div className="bg-white dark:bg-[#0D1527] border border-slate-200/90 dark:border-slate-800/90 rounded-xl p-3.5 shadow-sm select-none flex flex-col justify-between">
       
-      {/* 1. Header Toolbar matching Reference */}
+      {/* 1. Header Toolbar with Prominent Webcam ON/OFF Switch */}
       <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-100 dark:border-slate-800">
         
         {/* Left: Title & Live Status */}
@@ -357,15 +360,48 @@ export const CameraFeedCanvas: React.FC = () => {
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           </h2>
 
-          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[10.5px] font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Camera Active</span>
-          </div>
+          {isWebcamActive ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[10.5px] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Camera Active</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700 text-[10.5px] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+              <span>Camera Standby (OFF)</span>
+            </div>
+          )}
         </div>
 
-        {/* Right: Technical FPS / Diagnostics toggle */}
-        <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 hidden sm:block">
-          <span>RACK-CAM-01 • 1080p</span>
+        {/* Right: Master Webcam ON/OFF Toggle Switch Button */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => toggleWebcam()}
+            className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm border ${
+              isWebcamActive
+                ? 'bg-emerald-600 hover:bg-rose-600 text-white border-emerald-500 hover:border-rose-500 group'
+                : 'bg-slate-800 hover:bg-emerald-700 text-slate-200 hover:text-white border-slate-700 hover:border-emerald-600'
+            }`}
+            title={isWebcamActive ? "Click to Turn Webcam OFF" : "Click to Turn Webcam ON"}
+          >
+            {isWebcamActive ? (
+              <>
+                <Video className="w-3.5 h-3.5 text-emerald-200 group-hover:hidden" />
+                <VideoOff className="w-3.5 h-3.5 text-white hidden group-hover:block" />
+                <span className="group-hover:hidden">Webcam: ON</span>
+                <span className="hidden group-hover:inline">Turn OFF</span>
+              </>
+            ) : (
+              <>
+                <Video className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Turn Webcam ON</span>
+              </>
+            )}
+          </button>
+
+          <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 hidden sm:inline">
+            1080p
+          </span>
         </div>
 
       </div>
@@ -374,6 +410,47 @@ export const CameraFeedCanvas: React.FC = () => {
       <div className="relative rounded-xl overflow-hidden bg-slate-950 min-h-[360px] lg:min-h-[400px] flex items-center justify-center border border-slate-800 shadow-inner">
         <video ref={videoRef} className="hidden" playsInline muted autoPlay />
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
+
+        {/* Standby UI overlay when Webcam is turned OFF */}
+        {!isWebcamActive && videoSourceType === 'WEBCAM' && (
+          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20">
+            <div className="w-16 h-16 rounded-2xl bg-slate-900/90 border border-slate-700 flex items-center justify-center text-slate-400 mb-3 shadow-xl ring-4 ring-slate-800/50">
+              <VideoOff className="w-8 h-8 text-slate-400" />
+            </div>
+            <h3 className="text-white font-bold text-sm sm:text-base mb-1">Webcam is Switched OFF</h3>
+            <p className="text-xs text-slate-400 max-w-sm mb-4">
+              Click the button below to turn ON your webcam and begin real-time gesture verification.
+            </p>
+            <button
+              onClick={() => toggleWebcam(true)}
+              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-blue-500/30 transition active:scale-95"
+            >
+              <Video className="w-4 h-4" />
+              <span>Turn Webcam ON</span>
+            </button>
+          </div>
+        )}
+
+        {/* Webcam Access Error */}
+        {webcamError && (
+          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-25">
+            <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-2">
+              <VideoOff className="w-7 h-7 text-rose-400" />
+            </div>
+            <h4 className="text-white font-bold text-xs mb-1">Camera Access Notice</h4>
+            <p className="text-[11.5px] text-slate-300 max-w-xs mb-3">{webcamError}</p>
+            <button
+              onClick={() => {
+                setWebcamError(null);
+                toggleWebcam(true);
+              }}
+              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Retry Webcam Connection</span>
+            </button>
+          </div>
+        )}
 
         {/* Loading Indicator */}
         {isModelLoading && (
@@ -384,20 +461,22 @@ export const CameraFeedCanvas: React.FC = () => {
         )}
 
         {/* Top-Right LIVE Badge */}
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded-full border border-slate-700 text-white text-[10.5px] font-mono shadow-md z-10">
-          <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-          <span className="font-bold text-rose-400">LIVE</span>
-          <span className="text-slate-400">00:12:34</span>
-        </div>
+        {isWebcamActive && (
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded-full border border-slate-700 text-white text-[10.5px] font-mono shadow-md z-10">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+            <span className="font-bold text-rose-400">LIVE</span>
+            <span className="text-slate-400">00:12:34</span>
+          </div>
+        )}
 
         {/* Bottom Technical HUD Strip */}
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[10.5px] font-mono text-slate-400 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-lg border border-slate-800 z-10">
           <div className="flex items-center gap-3">
-            <span>FPS: <strong className="text-white">30</strong></span>
+            <span>FPS: <strong className="text-white">{isWebcamActive ? '30' : '0'}</strong></span>
             <span>•</span>
-            <span>Latency: <strong className="text-cyan-400">{telemetry.edgeLatencyMs ? telemetry.edgeLatencyMs.toFixed(1) : '17.6'} ms</strong></span>
+            <span>Latency: <strong className="text-cyan-400">{isWebcamActive ? (telemetry.edgeLatencyMs ? telemetry.edgeLatencyMs.toFixed(1) : '17.6') : '--'} ms</strong></span>
             <span>•</span>
-            <span>Resolution: <strong className="text-slate-300">1280×720</strong></span>
+            <span>Resolution: <strong className="text-slate-300">{isWebcamActive ? '1280×720' : 'STANDBY'}</strong></span>
           </div>
 
           <button className="text-slate-400 hover:text-white transition" title="Fullscreen Viewport">
@@ -413,18 +492,25 @@ export const CameraFeedCanvas: React.FC = () => {
         {/* Left: Input Selection Buttons */}
         <div className="flex items-center gap-1.5">
           <button
-            onClick={() => {
-              setVideoSource('WEBCAM');
-              setIsWebcamActive(true);
-            }}
+            onClick={() => toggleWebcam()}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
               videoSourceType === 'WEBCAM' && isWebcamActive
                 ? 'bg-blue-600 text-white shadow-sm'
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
+            title="Toggle Webcam ON or OFF"
           >
-            <Video className="w-3.5 h-3.5" />
-            <span>Webcam</span>
+            {isWebcamActive ? (
+              <>
+                <Video className="w-3.5 h-3.5 text-white" />
+                <span>Webcam (ON)</span>
+              </>
+            ) : (
+              <>
+                <VideoOff className="w-3.5 h-3.5 text-slate-400" />
+                <span>Webcam (OFF)</span>
+              </>
+            )}
           </button>
 
           <button
@@ -436,7 +522,7 @@ export const CameraFeedCanvas: React.FC = () => {
             }`}
           >
             <UploadCloud className="w-3.5 h-3.5" />
-            <span>Upload MP4</span>
+            <span>Video File</span>
           </button>
 
           <button

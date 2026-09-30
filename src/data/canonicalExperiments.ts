@@ -23,7 +23,174 @@ export interface CanonicalExperiment {
 }
 
 export const CANONICAL_EXPERIMENTS: CanonicalExperiment[] = [
-  // 1. BAS-SCI-01: Protein Crystal Growth & Solution Inoculation (PCG)
+  // 1. BAS-DEMO-01: Real-Time Webcam Hand Verification Demo (PRIMARY DEFAULT)
+  {
+    id: 'BAS-DEMO-01',
+    code: 'BAS-DEMO-01',
+    title: 'Real-Time Webcam Hand Verification Demo',
+    shortTitle: 'Hand Verification Demo',
+    category: 'AI/ML',
+    categoryCode: 'AI',
+    description: 'Interactive real-time webcam gesture verification: Hands at Rest, Raise Right Hand, Raise Left Hand, and Lower Both Hands.',
+    status: 'Demo',
+    totalSteps: 4,
+    image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&auto=format&fit=crop&q=80',
+    equipmentImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80',
+    tags: [
+      { label: 'Real-Time AI', color: 'bg-cyan-50 text-cyan-700 dark:bg-cyan-950/60 dark:text-cyan-300' },
+      { label: 'Webcam CV', color: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300' }
+    ],
+    payload: 'REAL-TIME WEBCAM GESTURE INTERACTION',
+    location: 'Interactive Camera Console',
+    principalInvestigator: 'Real-Time Webcam Pose Estimation Engine',
+    hazardLevel: 'LOW',
+    detailRoute: '/experiments/BAS-DEMO-01',
+    steps: [
+      {
+        stepNumber: 1,
+        stepCode: 'DEMO-STP-01',
+        title: 'Hands at Rest',
+        expectedAction: 'Please face the camera and keep both hands down.',
+        targetObject: 'Resting Position',
+        durationEstimateSec: 6,
+        safetyRequirement: 'Please face the camera and keep both hands down.',
+        scientificRationale: 'Establishes initial operator baseline posture before activity sequence.',
+        voicePrompt: 'Rest in position. Please face the camera and keep both hands down.',
+        validationRules: {
+          requiredObjects: ['Resting Position'],
+          requiredHandInteraction: 'RESTING',
+          requiredKinematicAction: 'HANDS_AT_REST'
+        }
+      },
+      {
+        stepNumber: 2,
+        stepCode: 'DEMO-STP-02',
+        title: 'Raise Your Right Hand',
+        expectedAction: 'Please raise your RIGHT hand.',
+        targetObject: 'Right Arm',
+        durationEstimateSec: 6,
+        safetyRequirement: 'Please raise your RIGHT hand clearly in view of camera.',
+        scientificRationale: 'Validates unilateral limb elevation and orientation tracking.',
+        voicePrompt: 'Please raise your right hand.',
+        validationRules: {
+          requiredObjects: ['Right Arm'],
+          requiredHandInteraction: 'REACHING',
+          requiredKinematicAction: 'RAISE_RIGHT_HAND'
+        }
+      },
+      {
+        stepNumber: 3,
+        stepCode: 'DEMO-STP-03',
+        title: 'Raise Your Left Hand',
+        expectedAction: 'Please raise your LEFT hand.',
+        targetObject: 'Left Arm',
+        durationEstimateSec: 6,
+        safetyRequirement: 'Please raise your LEFT hand clearly in view of camera.',
+        scientificRationale: 'Validates contralateral limb elevation and multi-joint kinematics.',
+        voicePrompt: 'Please raise your left hand.',
+        validationRules: {
+          requiredObjects: ['Left Arm'],
+          requiredHandInteraction: 'REACHING',
+          requiredKinematicAction: 'RAISE_LEFT_HAND'
+        }
+      },
+      {
+        stepNumber: 4,
+        stepCode: 'DEMO-STP-04',
+        title: 'Lower Both Hands',
+        expectedAction: 'Please lower BOTH hands.',
+        targetObject: 'Resting Position',
+        durationEstimateSec: 6,
+        safetyRequirement: 'Please lower BOTH hands back to resting position.',
+        scientificRationale: 'Confirms sequence completion, returns operator to baseline, and completes verification.',
+        voicePrompt: 'Please lower both hands.',
+        validationRules: {
+          requiredObjects: ['Resting Position'],
+          requiredHandInteraction: 'RESTING',
+          requiredKinematicAction: 'HANDS_AT_REST'
+        }
+      }
+    ],
+    protocol: {
+      id: 'exp-bas-demo-01',
+      code: 'BAS-DEMO-01',
+      name: 'Real-Time Webcam Hand Verification Demo',
+      category: 'BIOLOGICAL',
+      rackLocation: 'REAL-TIME WEBCAM INTERACTIVE MODE',
+      principalInvestigator: 'Real-Time Webcam Pose Estimation Engine',
+      description: 'Interactive real-time webcam gesture verification: Hands at Rest, Raise Right Hand, Raise Left Hand, and Lower Both Hands.',
+      totalSteps: 4,
+      hazardLevel: 'LOW',
+      steps: [
+        {
+          stepNumber: 1,
+          stepCode: 'DEMO-STP-01',
+          title: 'Hands at Rest',
+          expectedAction: 'Please face the camera and keep both hands down.',
+          targetObject: 'Resting Position',
+          durationEstimateSec: 6,
+          safetyRequirement: 'Please face the camera and keep both hands down.',
+          scientificRationale: 'Establishes initial operator baseline posture before activity sequence.',
+          voicePrompt: 'Rest in position. Please face the camera and keep both hands down.',
+          validationRules: {
+            requiredObjects: ['Resting Position'],
+            requiredHandInteraction: 'RESTING',
+            requiredKinematicAction: 'HANDS_AT_REST'
+          }
+        },
+        {
+          stepNumber: 2,
+          stepCode: 'DEMO-STP-02',
+          title: 'Raise Your Right Hand',
+          expectedAction: 'Please raise your RIGHT hand.',
+          targetObject: 'Right Arm',
+          durationEstimateSec: 6,
+          safetyRequirement: 'Please raise your RIGHT hand clearly in view of camera.',
+          scientificRationale: 'Validates unilateral limb elevation and orientation tracking.',
+          voicePrompt: 'Please raise your right hand.',
+          validationRules: {
+            requiredObjects: ['Right Arm'],
+            requiredHandInteraction: 'REACHING',
+            requiredKinematicAction: 'RAISE_RIGHT_HAND'
+          }
+        },
+        {
+          stepNumber: 3,
+          stepCode: 'DEMO-STP-03',
+          title: 'Raise Your Left Hand',
+          expectedAction: 'Please raise your LEFT hand.',
+          targetObject: 'Left Arm',
+          durationEstimateSec: 6,
+          safetyRequirement: 'Please raise your LEFT hand clearly in view of camera.',
+          scientificRationale: 'Validates contralateral limb elevation and multi-joint kinematics.',
+          voicePrompt: 'Please raise your left hand.',
+          validationRules: {
+            requiredObjects: ['Left Arm'],
+            requiredHandInteraction: 'REACHING',
+            requiredKinematicAction: 'RAISE_LEFT_HAND'
+          }
+        },
+        {
+          stepNumber: 4,
+          stepCode: 'DEMO-STP-04',
+          title: 'Lower Both Hands',
+          expectedAction: 'Please lower BOTH hands.',
+          targetObject: 'Resting Position',
+          durationEstimateSec: 6,
+          safetyRequirement: 'Please lower BOTH hands back to resting position.',
+          scientificRationale: 'Confirms sequence completion, returns operator to baseline, and completes verification.',
+          voicePrompt: 'Please lower both hands.',
+          validationRules: {
+            requiredObjects: ['Resting Position'],
+            requiredHandInteraction: 'RESTING',
+            requiredKinematicAction: 'HANDS_AT_REST'
+          }
+        }
+      ]
+    }
+  },
+
+  // 2. BAS-SCI-01: Protein Crystal Growth & Solution Inoculation (PCG)
   {
     id: 'BAS-SCI-01',
     code: 'BAS-SCI-01',
@@ -49,15 +216,15 @@ export const CANONICAL_EXPERIMENTS: CanonicalExperiment[] = [
       {
         stepNumber: 1,
         stepCode: 'SCI-STEP-01',
-        title: 'Open Payload Rack',
-        expectedAction: 'Disengage mechanical latch and open payload rack door.',
-        targetObject: 'Payload-Rack-Latch-C4',
+        title: 'Open Equipment Hatch',
+        expectedAction: 'Disengage mechanical latch and open access hatch.',
+        targetObject: 'Equipment-Hatch-Latch',
         durationEstimateSec: 15,
-        safetyRequirement: 'Ensure rack hinge is locked in open position before reaching inside.',
-        scientificRationale: 'Grants access to microgravity incubation manifold and sample cartridge dock.',
-        voicePrompt: 'Step 1: Disengage mechanical latch and open the payload rack door.',
+        safetyRequirement: 'Ensure hatch hinge is locked in open position before reaching inside.',
+        scientificRationale: 'Grants access to microgravity incubation manifold and cartridge dock.',
+        voicePrompt: 'Step 1: Disengage mechanical latch and open the equipment hatch.',
         validationRules: {
-          requiredObjects: ['Payload-Rack-Latch-C4'],
+          requiredObjects: ['Equipment-Hatch-Latch'],
           requiredHandInteraction: 'LID_OPEN',
           requiredKinematicAction: 'OPEN_PAYLOAD_RACK'
         }
@@ -65,13 +232,13 @@ export const CANONICAL_EXPERIMENTS: CanonicalExperiment[] = [
       {
         stepNumber: 2,
         stepCode: 'SCI-STEP-02',
-        title: 'Collect Sample',
-        expectedAction: 'Retrieve biological sample vial from cold storage container.',
+        title: 'Retrieve Specimen Vial',
+        expectedAction: 'Retrieve specimen vial from cold storage container.',
         targetObject: 'Biological-Sample-Vial-A',
         durationEstimateSec: 20,
         safetyRequirement: 'Verify barcode tag and ensure thermal equilibrium threshold.',
         scientificRationale: 'Prepares biological specimen for microfluidic cartridge inoculation.',
-        voicePrompt: 'Step 2: Retrieve biological sample vial from storage.',
+        voicePrompt: 'Step 2: Retrieve specimen vial from storage.',
         validationRules: {
           requiredObjects: ['Biological-Sample-Vial-A'],
           requiredHandInteraction: 'GRIP',
@@ -81,7 +248,7 @@ export const CANONICAL_EXPERIMENTS: CanonicalExperiment[] = [
       {
         stepNumber: 3,
         stepCode: 'SCI-STEP-03',
-        title: 'Clean Sample Area',
+        title: 'Sanitize Work Surface',
         expectedAction: 'Sanitize working area using approved wipes.',
         targetObject: 'Ultrasonic-Cleaner-Stage',
         durationEstimateSec: 15,
@@ -97,13 +264,13 @@ export const CANONICAL_EXPERIMENTS: CanonicalExperiment[] = [
       {
         stepNumber: 4,
         stepCode: 'SCI-STEP-04',
-        title: 'Install Cartridge',
-        expectedAction: 'Install sample cartridge into microgravity chamber.',
+        title: 'Install Microfluidic Cartridge',
+        expectedAction: 'Install cartridge into microgravity chamber.',
         targetObject: 'Microfluidic-Cartridge-Dock',
         durationEstimateSec: 25,
         safetyRequirement: 'Ensure guide pins align before applying axial insertion pressure.',
         scientificRationale: 'Establishes hermetic microfluidic coupling with station telemetry sensors.',
-        voicePrompt: 'Step 4: Align guide pins and install sample cartridge into chamber.',
+        voicePrompt: 'Step 4: Align guide pins and install cartridge into chamber.',
         validationRules: {
           requiredObjects: ['Microfluidic-Cartridge-Dock'],
           requiredHandInteraction: 'INSERTING',
@@ -113,13 +280,13 @@ export const CANONICAL_EXPERIMENTS: CanonicalExperiment[] = [
       {
         stepNumber: 5,
         stepCode: 'SCI-STEP-05',
-        title: 'Seal Chamber',
-        expectedAction: 'Close and seal chamber, verify lock status.',
+        title: 'Secure Chamber Latch',
+        expectedAction: 'Close and secure chamber, verify lock status.',
         targetObject: 'Hermetic-Seal-Clamps',
         durationEstimateSec: 15,
         safetyRequirement: 'Confirm dual tactile clicks and green LED lock telemetry.',
         scientificRationale: 'Locks chamber atmosphere and prevents outgassing during experiment run.',
-        voicePrompt: 'Step 5: Engage hermetic seal clamps to lock chamber.',
+        voicePrompt: 'Step 5: Engage seal clamps to lock chamber.',
         validationRules: {
           requiredObjects: ['Hermetic-Seal-Clamps'],
           requiredHandInteraction: 'LID_CLOSE',
@@ -137,124 +304,6 @@ export const CANONICAL_EXPERIMENTS: CanonicalExperiment[] = [
       description: 'On-board scientific protocol for protein crystallization and solution inoculation in microgravity environment.',
       totalSteps: 5,
       hazardLevel: 'BIO-SAFETY-1',
-      steps: []
-    }
-  },
-
-  // 2. BAS-DEMO-01: Live Human Activity Recognition Demo
-  {
-    id: 'BAS-DEMO-01',
-    code: 'BAS-DEMO-01',
-    title: 'Live Human Activity Recognition Demo',
-    shortTitle: 'Live Activity Demo',
-    category: 'AI/ML',
-    categoryCode: 'AI',
-    description: 'Real-time AI activity recognition demo to validate on-orbit human action monitoring and guidance system.',
-    status: 'Demo',
-    totalSteps: 5,
-    image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?w=800&auto=format&fit=crop&q=80',
-    equipmentImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&auto=format&fit=crop&q=80',
-    tags: [
-      { label: 'AI/ML', color: 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300' },
-      { label: 'Express Rack-01', color: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300' }
-    ],
-    payload: 'EXPRESS RACK-01 [LIVE WEBCAM MODE]',
-    location: 'Express Rack-01',
-    principalInvestigator: 'AvishkarX Interactive Live Webcam Demo',
-    hazardLevel: 'LOW',
-    detailRoute: '/experiments/BAS-DEMO-01',
-    steps: [
-      {
-        stepNumber: 1,
-        stepCode: 'DEMO-STP-01',
-        title: 'Hands at Rest',
-        expectedAction: 'Place both hands down and stay still for a moment.',
-        targetObject: 'Resting Position',
-        durationEstimateSec: 6,
-        safetyRequirement: 'Keep your upper body comfortably in camera view.',
-        scientificRationale: 'Establishes initial operator baseline posture before activity sequence.',
-        voicePrompt: 'Step 1: Place both hands down and stay still for a moment.',
-        validationRules: {
-          requiredObjects: ['Resting Position'],
-          requiredHandInteraction: 'RESTING',
-          requiredKinematicAction: 'HANDS_AT_REST'
-        }
-      },
-      {
-        stepNumber: 2,
-        stepCode: 'DEMO-STP-02',
-        title: 'Raise Right Hand',
-        expectedAction: 'Slowly raise your right hand.',
-        targetObject: 'Right Arm',
-        durationEstimateSec: 6,
-        safetyRequirement: 'Raise right hand gently in front of camera.',
-        scientificRationale: 'Validates unilateral limb elevation and orientation tracking.',
-        voicePrompt: 'Step 2: Slowly raise your right hand.',
-        validationRules: {
-          requiredObjects: ['Right Arm'],
-          requiredHandInteraction: 'REACHING',
-          requiredKinematicAction: 'RAISE_RIGHT_HAND'
-        }
-      },
-      {
-        stepNumber: 3,
-        stepCode: 'DEMO-STP-03',
-        title: 'Lower Right Hand',
-        expectedAction: 'Lower your right hand.',
-        targetObject: 'Resting Position',
-        durationEstimateSec: 6,
-        safetyRequirement: 'Lower right hand back to resting position.',
-        scientificRationale: 'Confirms downward transition and postural recovery.',
-        voicePrompt: 'Step 3: Lower your right hand.',
-        validationRules: {
-          requiredObjects: ['Resting Position'],
-          requiredHandInteraction: 'RESTING',
-          requiredKinematicAction: 'LOWER_RIGHT_HAND'
-        }
-      },
-      {
-        stepNumber: 4,
-        stepCode: 'DEMO-STP-04',
-        title: 'Raise Both Hands',
-        expectedAction: 'Raise both hands.',
-        targetObject: 'Both Arms',
-        durationEstimateSec: 8,
-        safetyRequirement: 'Raise both hands upward in camera frame.',
-        scientificRationale: 'Validates bilateral multi-joint kinematic coordination in zero-g.',
-        voicePrompt: 'Step 4: Raise both hands.',
-        validationRules: {
-          requiredObjects: ['Both Arms'],
-          requiredHandInteraction: 'REACHING',
-          requiredKinematicAction: 'RAISE_BOTH_HANDS'
-        }
-      },
-      {
-        stepNumber: 5,
-        stepCode: 'DEMO-STP-05',
-        title: 'Return to Rest',
-        expectedAction: 'Return both hands to the resting position.',
-        targetObject: 'Resting Position',
-        durationEstimateSec: 6,
-        safetyRequirement: 'Return hands to resting posture to complete sequence.',
-        scientificRationale: 'Completes validation cycle and seals SOP execution audit log.',
-        voicePrompt: 'Step 5: Return both hands to the resting position.',
-        validationRules: {
-          requiredObjects: ['Resting Position'],
-          requiredHandInteraction: 'RESTING',
-          requiredKinematicAction: 'HANDS_AT_REST'
-        }
-      }
-    ],
-    protocol: {
-      id: 'exp-bas-demo-01',
-      code: 'BAS-DEMO-01',
-      name: 'Live Human Activity Recognition Demo',
-      category: 'BIOLOGICAL',
-      rackLocation: 'EXPRESS RACK-01 [LIVE WEBCAM MODE]',
-      principalInvestigator: 'AvishkarX Interactive Live Webcam Demo',
-      description: 'Real-time AI activity recognition demo to validate on-orbit human action monitoring and guidance system.',
-      totalSteps: 5,
-      hazardLevel: 'LOW',
       steps: []
     }
   },

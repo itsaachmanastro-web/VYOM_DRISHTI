@@ -13,7 +13,7 @@ export const ExperimentSequenceCard: React.FC = () => {
 
   const getStepIcon = (index: number) => {
     if (index === 0) {
-      // Hands at Rest
+      // Step 1: Hands at Rest (Both down)
       return (
         <svg viewBox="0 0 48 48" className="w-8 h-8 text-current" fill="currentColor">
           <circle cx="24" cy="10" r="4" />
@@ -26,7 +26,7 @@ export const ExperimentSequenceCard: React.FC = () => {
       );
     }
     if (index === 1) {
-      // Raise Right Hand
+      // Step 2: Raise Right Hand
       return (
         <svg viewBox="0 0 48 48" className="w-8 h-8 text-current" fill="currentColor">
           <circle cx="24" cy="10" r="4" />
@@ -39,7 +39,20 @@ export const ExperimentSequenceCard: React.FC = () => {
       );
     }
     if (index === 2) {
-      // Lower Right Hand
+      // Step 3: Raise Left Hand
+      return (
+        <svg viewBox="0 0 48 48" className="w-8 h-8 text-current" fill="currentColor">
+          <circle cx="24" cy="10" r="4" />
+          <path d="M19 16h10c1 0 2 1 2 2v14H17V18c0-1 1-2 2-2z" />
+          <path d="M17 18l-7-9c-1-1-1-1-2 0s0 1 1 2l6 8c1 1 1 0 2-1z" />
+          <path d="M31 18l3 12c0 1 1 1 1 1s1 0 1-1l-3-12c0-1-1-1-2 0z" />
+          <rect x="18" y="32" width="4" height="12" rx="2" />
+          <rect x="26" y="32" width="4" height="12" rx="2" />
+        </svg>
+      );
+    }
+    if (index === 3) {
+      // Step 4: Lower Both Hands / Rest
       return (
         <svg viewBox="0 0 48 48" className="w-8 h-8 text-current" fill="currentColor">
           <circle cx="24" cy="10" r="4" />
@@ -51,20 +64,7 @@ export const ExperimentSequenceCard: React.FC = () => {
         </svg>
       );
     }
-    if (index === 3) {
-      // Raise Both Hands
-      return (
-        <svg viewBox="0 0 48 48" className="w-8 h-8 text-current" fill="currentColor">
-          <circle cx="24" cy="10" r="4" />
-          <path d="M19 16h10c1 0 2 1 2 2v14H17V18c0-1 1-2 2-2z" />
-          <path d="M17 18l-7-9c-1-1-1-1-2 0s0 1 1 2l6 8c1 1 1 0 2-1z" />
-          <path d="M31 18l7-9c1-1 1-1 2 0s0 1-1 2l-6 8c-1 1-1 0-2-1z" />
-          <rect x="18" y="32" width="4" height="12" rx="2" />
-          <rect x="26" y="32" width="4" height="12" rx="2" />
-        </svg>
-      );
-    }
-    // Return to Rest / Default
+    // Default
     return (
       <svg viewBox="0 0 48 48" className="w-8 h-8 text-current" fill="currentColor">
         <circle cx="24" cy="10" r="4" />
@@ -77,6 +77,8 @@ export const ExperimentSequenceCard: React.FC = () => {
     );
   };
 
+  const isFourStep = activeProtocol.steps.length === 4;
+
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm select-none">
       
@@ -88,7 +90,7 @@ export const ExperimentSequenceCard: React.FC = () => {
             Experiment Sequence
           </span>
           <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
-            {isDemoMode ? 'Demo Mode' : activeProtocol.code}
+            {isDemoMode ? 'Real-Time Demo' : activeProtocol.code}
           </span>
         </div>
 
@@ -101,8 +103,8 @@ export const ExperimentSequenceCard: React.FC = () => {
         </button>
       </div>
 
-      {/* 5 Horizontal Step Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-3">
+      {/* Step Cards Grid */}
+      <div className={`grid ${isFourStep ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2 sm:grid-cols-5'} gap-2.5 pt-3`}>
         {activeProtocol.steps.map((step, idx) => {
           const isDone = idx < currentStepIndex;
           const isCurrent = idx === currentStepIndex;

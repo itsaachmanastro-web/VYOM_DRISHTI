@@ -185,8 +185,10 @@ export class LocalVoiceOutputEngine {
   private initVoice() {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     const voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return;
+
     const preferred = voices.find(v => 
-      (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('David') || v.name.includes('Mark')) && 
+      (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Jenny') || v.name.includes('Zira') || v.name.includes('David') || v.name.includes('Guy')) && 
       v.lang.startsWith('en')
     ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
     
@@ -249,8 +251,8 @@ export class LocalVoiceOutputEngine {
     return this.state === 'SPEAKING';
   }
 
-  public speakGuidance(text: string, force: boolean = false, cooldownMs: number = 3000, onEnd?: () => void) {
-    if ((this.isMuted || !this.voiceEnabled) && !force) {
+  public speakGuidance(text: string, force: boolean = false, cooldownMs: number = 2500, onEnd?: () => void) {
+    if (this.isMuted || !this.voiceEnabled) {
       if (onEnd) onEnd();
       return;
     }
@@ -259,25 +261,40 @@ export class LocalVoiceOutputEngine {
       return;
     }
 
+    const cleanText = text.trim();
+    if (!cleanText) {
+      if (onEnd) onEnd();
+      return;
+    }
+
     const now = Date.now();
-    if (!force && this.lastSpokenText === text && now - this.lastSpokenTimestamp < cooldownMs) {
+    // Prevent repeated re-triggering of the same phrase within cooldown
+    if (this.lastSpokenText === cleanText && (now - this.lastSpokenTimestamp < cooldownMs)) {
       if (onEnd) onEnd();
       return;
     }
 
     try {
-      window.speechSynthesis.cancel(); // Cancel any existing speech
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
 
-      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.cancel(); // Cancel any existing speech cleanly
+
+      if (!this.selectedVoice) {
+        this.initVoice();
+      }
+
+      const utterance = new SpeechSynthesisUtterance(cleanText);
       if (this.selectedVoice) {
         utterance.voice = this.selectedVoice;
       }
-      utterance.rate = this.voiceRate;
-      utterance.pitch = this.voicePitch;
-      utterance.volume = this.isMuted ? 0 : this.volume;
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.volume = this.isMuted ? 0 : 1.0;
 
       this.state = 'SPEAKING';
-      this.lastSpokenText = text;
+      this.lastSpokenText = cleanText;
       this.lastSpokenTimestamp = now;
 
       let hasFinished = false;
@@ -293,7 +310,7 @@ export class LocalVoiceOutputEngine {
       utterance.onerror = finish;
 
       // Watchdog timer to ensure state transitions even if browser fails to fire onend
-      const estimatedDurationMs = Math.max(1500, (text.split(/\s+/).length / 2.5) * 1000 + 1000);
+      const estimatedDurationMs = Math.max(1500, (cleanText.split(/\s+/).length / 2.2) * 1000 + 1000);
       setTimeout(finish, estimatedDurationMs);
 
       window.speechSynthesis.speak(utterance);
